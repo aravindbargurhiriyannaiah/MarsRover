@@ -26,6 +26,7 @@ public class MarsRover implements Navigator{
         Input systemInput = Verifier.buildInput(input);
         if (systemInput != null) {
             List<RoverInput> roverInputs = systemInput.getRoverInputs();
+            Coordinates gridCoordinates = systemInput.getGridCoordinates();
             for (RoverInput roverInput : roverInputs) {
                 RoverPosition roverposition = roverInput.getRoverposition();
                 Coordinates currentCoordinates = roverposition.getCoordinates();
@@ -37,19 +38,24 @@ public class MarsRover implements Navigator{
                     if (canContinue) {
                         switch (movement) {
                             case L:
+                                //Turn Left from current orientation.
                                 currentOrientation = getNewOrientation(currentOrientation, L);
                                 break;
                             case R:
+                                //Turn Right from current orientation.
                                 currentOrientation = getNewOrientation(currentOrientation, R);
                                 break;
                             case M:
-                                //Find out if a 'M' can be executed from a given coordinate - we do not want the rover falling off the grid. Stay put.
+                                //Find out if the rover can move one  block from the current coordinate
                                 Coordinates newCoordinates = getNewCoordinates(currentCoordinates, currentOrientation);
-                                if (Verifier.areValidCoordinates(newCoordinates)) {
+                                if (Verifier.areValidCoordinates(newCoordinates, gridCoordinates)) {
                                     currentCoordinates = newCoordinates;
                                 } else {
-                                    System.out.println("The rover cannot move to the new coordinates as it will go off grid. " +
-                                            "Stopping the program. Current coordinates = " + currentCoordinates);
+                                    System.out.println("Stopping the rover because the move will cause it to go off the grid." +
+                                            "\ncurrentCoordinates = (" + currentCoordinates + ")" +
+                                            "\ncurrentOrientation = " + currentOrientation +
+                                            "\nnewCoordinates = (" + newCoordinates + ")");
+
                                     canContinue = false;
                                 }
                                 break;
@@ -85,50 +91,50 @@ public class MarsRover implements Navigator{
     }
 
     private Orientation getNewOrientation(Orientation currentOrientation, Movement movement) {
-        Orientation orientation = currentOrientation;
+        Orientation newOrientation = currentOrientation;
         switch (currentOrientation) {
             case N:
                 switch (movement) {
                     case L:
-                        orientation = W;
+                        newOrientation = W;
                         break;
                     case R:
-                        orientation = E;
+                        newOrientation = E;
                         break;
                 }
                 break;
             case E:
                 switch (movement) {
                     case L:
-                        orientation = N;
+                        newOrientation = N;
                         break;
                     case R:
-                        orientation = S;
+                        newOrientation = S;
                         break;
                 }
                 break;
             case W:
                 switch (movement) {
                     case L:
-                        orientation = S;
+                        newOrientation = S;
                         break;
                     case R:
-                        orientation = N;
+                        newOrientation = N;
                         break;
                 }
                 break;
             case S:
                 switch (movement) {
                     case L:
-                        orientation = E;
+                        newOrientation = E;
                         break;
                     case R:
-                        orientation = W;
+                        newOrientation = W;
                         break;
                 }
                 break;
 
         }
-        return orientation;
+        return newOrientation;
     }
 }
